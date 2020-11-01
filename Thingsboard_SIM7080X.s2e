@@ -1,0 +1,116 @@
+{	"extensionName": "Thingsboard IoT Platform for SIM7080X 확장 블럭 ",
+	"description": "SIM7080X 모듈을 이용하여 Thingsboard IoT Platform에 데이터를 전송하는 확장블럭입니다. 이 블럭은 MIT License를 따릅니다.",
+	"version": "0.1",
+	"author": "Gaduino ",
+	"homepage": "http://www.github.com/shga89",
+	"sort":0,
+	"javascriptURL":"js/Thingsboard_SIM7080X.js",
+    "firmware":"1.0",
+    "extensionPort":0,
+	"blockSpecs": [
+		[
+			"w",
+			"Initialize SIM7080X: RX= %d.pin , TX= %d.pin , PWR= %d.pin",
+			"SIM7080XInit",
+			"",
+			"",
+			"",
+			{
+				"setup":"\/********* SIM7080X Setup *********\/
+Serial.begin(115200);
+Serial.println(\"Init SIM7080X...\");
+Serial_SIM7080X.listen();
+Serial_SIM7080X.begin(9600);  // SIM7080X 모듈의 Serial을 초기화
+
+sim7080x.init(&Serial_SIM7080X);
+\/******************************\/\n",
+				"inc":"#include \"SIM7080X.h\"\n",
+				"def":"\/********* SIM7080X Define ********\/
+#define SIM7080X_PWR	{2}
+SoftwareSerial Serial_SIM7080X({0}, {1});
+SIM7080X sim7080x;
+\/******************************\/\n",
+				"work":"",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Set TB Platform: Server= %s, Port(MQTT)= %s, TOKEN= %s",
+			"SIM7080XTBInit",
+			"",
+			"1883",
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"
+\/***** Thingsboard Define *****\/
+#define SERVER {0}
+#define PORT {1}
+#define TOKEN {2}
+
+bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\") {
+String contents;
+char contents_c[100];
+// 전송된 매개변수의 개수를 확인
+if (name3 == \"0\" && value3 == \"0\") {
+if (name2 == \"0\" && value2 == \"0\") {
+if (name1 == \"0\" && value1 == \"0\") {
+Serial.println(\"[SIM-TB] No args input!\");
+return false;
+} else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\"}\";
+} // 1개 전송
+} else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\"}\";
+}// 2개 전송
+} else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\", \\\"\" + name3 + \"\\\":\\\"\" + value3 + \"\\\"}\";
+}// 3개 전송
+
+// SIM7080X 접속여부 확인
+Serial_SIM7080X.listen();    
+if (!sim7080x.isServer()) {
+sim7080x.PowerOn(SIM7080X_PWR);
+sim7080x.connectCellular();
+sim7080x.connectServer(SERVER,PORT,TOKEN);
+}  // 확인완료
+contents.toCharArray(contents_c, contents.length()+1);
+sim7080x.sendDataJson(contents_c);
+Serial.println(\"[SIM-TB] Sending has been completed!\"); //전송 성공!
+return true;
+} // toTB함수 종료
+\/******************************\/\n",
+				"work":"",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Send data NAME1= %s , VALUE1= %s , NAME2= %s , VALUE2= %s , NAME3= %s , VALUE3= %s",
+			"SIM7080XTBSend3",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"toTB(String({0}), String({1}), String({2}), String({3}), String({4}), String({5}));\n",
+				"loop":""
+			}
+		]
+	],
+	"menus": {
+		"pin":[2,3,4,5,6,7,8,9,10,11,12,13]
+	},
+	"translators":{
+		"ko":{
+			"Initialize WiFi: SSID= %s , Password= %s , RX= %d.pin , TX= %d.pin":"WiFi 초기화 : SSID= %s , 비밀번호= %s , RX= %d.pin , TX= %d.pin",
+			"Connect to WiFi when it is not connected":"WiFi 접속이 안 되어 있다면 접속 시도",
+			"Set Thingsboard Platform: Server= %s, Port= %s, TOKEN= %s":"Thingsboard 플랫폼 설정: Server= %s, Port= %s, TOKEN= %s",
+			"Send data NAME1= %s , VALUE1= %s , NAME2= %s , VALUE2= %s , NAME3= %s , VALUE3= %s":"데이터 전송: 이름1= %s , 값1= %s , 이름2= %s , 값2= %s , 이름3= %s , 값3= %s"
+		}		
+	}
+}
