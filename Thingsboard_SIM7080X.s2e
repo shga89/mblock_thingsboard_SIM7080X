@@ -50,7 +50,7 @@ SIM7080X sim7080x;
 #define PORT {1}
 #define TOKEN {2}
 
-bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\") {
+bool toTB_SIM(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\") {
 String contents;
 char contents_c[100];
 // 전송된 매개변수의 개수를 확인
@@ -97,7 +97,7 @@ return true;
 				"setup":"",
 				"inc":"",
 				"def":"",
-				"work":"toTB(String({0}), String({1}), String({2}), String({3}), String({4}), String({5}));\n",
+				"work":"toTB_SIM(String({0}), String({1}), String({2}), String({3}), String({4}), String({5}));\n",
 				"loop":""
 			}
 		]
